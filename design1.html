@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MIS Support Ticket</title>
+
+  <!-- Tabler Core CSS (Latest) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+  <style>
+    .upload-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      background: #fcfcfd;
+      cursor: pointer;
+      transition:all 0.3s;
+    }
+    .upload-area:hover {
+      border-color: #206bc4;
+      background: #f5faff;
+    }
+    .voice-box {
+      background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body class="border-top-wide border-primary">
+  <div class="page">
+
+    <!-- Header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row align-items-center">
+          <div class="col">
+            <div class="page-pretitle text-muted">MIS Support System</div>
+            <h2 class="page-title">Create New Support Ticket</h2>
+          </div>
+          <div class="col-auto ms-auto">
+            <a href="#" class="btn btn-ghost-secondary">
+              Back to Tickets
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-body">
+      <div class="container-xl">
+        <form id="supportForm">
+          <div class="row">
+            <!-- LEFT: Main Form -->
+            <div class="col-lg-8">
+              <!-- Staff & Device Info -->
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h3 class="card-title">Staff & Device Information</h3>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label required">Staff ID (স্টাফ আইডি)</label>
+                      <input type="text" class="form-control" placeholder="Enter Staff ID" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label required">Full Name</label>
+                      <input type="text" class="form-control" readonly placeholder="Auto-filled after ID">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Designation</label>
+                      <input type="text" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Department</label>
+                      <input type="text" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Phone Number</label>
+                      <input type="text" class="form-control" placeholder="01xxxxxxxxx">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-control" placeholder="name@company.com">
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Device Number</label>
+                      <input type="text" class="form-control" placeholder="e.g. LAPTOP-2024-056">
+                    </div>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label required">Location</label>
+                      <select class="form-select" required>
+                        <option value="">Select location</option>
+                        <option>Dhaka Head Office</option>
+                        <option>Chittagong Branch</option>
+                        <option>Sylhet Office</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label required">Building / Floor</label>
+                      <select class="form-select" required>
+                        <option value="">Select building</option>
+                        <option>Main Building - 5th Floor</option>
+                        <option>Annex Building - 3rd Floor</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Issue Details -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Describe Your Issue</h3>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label class="form-label required">Issue Type</label>
+                    <select class="form-select" multiple required>
+                      <option>Hardware Problem</option>
+                      <option>Software / Application</option>
+                      <option>Network & Internet</option>
+                      <option>Printer / Scanner</option>
+                      <option>Email & Account</option>
+                      <option>Access Card / Door</option>
+                      <option>Others</option>
+                    </select>
+                    <div class="form-hint">You can select multiple issues</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label required">Detailed Description</label>
+                    <textarea class="form-control" rows="6" placeholder="Please explain the problem clearly... When did it start? What have you tried?" required></textarea>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Attachments (Optional)</label>
+                    <div class="upload-area" onclick="document.getElementById('file-upload').click()">
+                      <i class="ti ti-upload" style="font-size: 42px; color: #206bc4;"></i>
+                      <div class="mt-2 fw-bold">Click to upload or drag & drop</div>
+                      <small class="text-muted">Max 3 files • PNG, JPG, PDF • Up to 20MB total</small>
+                      <input type="file" id="file-upload" multiple accept="image/*,.pdf" style="display:none">
+                    </div>
+                    <div id="file-list" class="mt-3"></div>
+                  </div>
+
+                  <div class="voice-box text-center">
+                    <div class="mb-3">
+                      <i class="ti ti-microphone" style="font-size: 36px; color: #206bc4;"></i>
+                      <div class="mt-2 fw-bold">Add Voice Message (Optional)</div>
+                      <small class="text-muted">Quickly record your issue instead of typing</small>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2">
+                      <button type="button" id="recordBtn" class="btn btn-danger">
+                        Record
+                      </button>
+                      <button type="button" id="pauseBtn" class="btn btn-warning" style="display:none;">
+                        Pause
+                      </button>
+                      <button type="button" id="stopBtn" class="btn btn-success" style="display:none;">
+                        Stop
+                      </button>
+                    </div>
+                    <div class="mt-3">
+                      <span id="timer" class="fw-bold">00:00</span>
+                      <audio id="audioPlayback" controls class="mt-3 w-100" style="display:none;"></audio>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Beautiful Summary & Submit -->
+            <div class="col-lg-4">
+              <div class="sticky-top" style="top: 1rem;">
+                <!-- Summary Card -->
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h3 class="card-title">Ticket Summary</h3>
+                  </div>
+                  <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>Ticket Type</span>
+                      <strong class="text-primary">New Request</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>Priority</span>
+                      <strong class="text-warning">Normal</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>Status</span>
+                      <strong class="text-success">Open</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>Created</span>
+                    
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Tips -->
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <h4 class="mb-3">
+                      <i class="ti ti-info-circle text-blue"></i> Quick Tips
+                    </h4>
+                    <ul class="text-muted small">
+                      <li>Clear description = faster resolution</li>
+                      <li>Attach screenshots if possible</li>
+                      <li>Voice message helps explain complex issues</li>
+                      <li>You’ll get SMS + Email notification</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+                  <i class="ti ti-send"></i>
+                  Submit Support Ticket
+                </button>
+
+                <div class="text-center mt-3">
+                  <small class="text-muted">
+                    Need urgent help? Call MIS Helpline: <strong>01678-000000</strong>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabler JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+
+  <!-- Simple File Preview -->
+  <script>
+    document.getElementById('file-upload').addEventListener('change', function(e) {
+      const container = document.getElementById('file-list');
+      container.innerHTML = '';
+      [...e.target.files].slice(0,3).forEach(file => {
+        const div = document.createElement('div');
+        div.className = 'd-flex align-items-center gap-2 mt-2';
+        div.innerHTML = `
+          <i class="ti ti-file-text text-primary"></i>
+          <span class="text-truncate" style="max-width: 280px;">${file.name}</span>
+          <small class="text-muted">(${(file.size/1024/1024).toFixed(2)} MB)</small>
+        `;
+        container.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MIS Support Ticket</title>
+
+  <!-- Tabler Latest -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+  <style>
+    .upload-area {
+      border: 2px dashed #d0d4e0;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      background: #fdfdfe;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .upload-area:hover {
+      border-color: #206bc4;
+      background: #f8fbff;
+    }
+    .voice-box {
+      background: linear-gradient(135deg, #f9fafa 0%, #f1f3f5 100%);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Header -->
+    <div class="page-header d-print-none border-bottom">
+      <div class="container-xl">
+        <div class="row align-items-center">
+          <div class="col">
+            <div class="page-pretitle text-muted">MIS Support</div>
+            <h2 class="page-title">Create Support Ticket</h2>
+          </div>
+          <div class="col-auto ms-auto">
+            <a href="#" class="btn btn-ghost-secondary">Back</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perfectly balanced form -->
+    <div class="page-body">
+      <div class="container-xl">
+        <form id="supportForm">
+          <div class="row g-4">
+
+            <!-- LEFT COLUMN – Now properly tall -->
+            <div class="col-lg-6">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title mb-0">Staff Information</h3>
+                </div>
+                <div class="card-body">
+
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="form-label required">Staff ID (স্টাফ আইডি)</label>
+                      <input type="text" class="form-control" placeholder="Enter your Staff ID" required>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label required">Full Name</label>
+                      <input type="text" class="form-control" readonly placeholder="Auto-filled">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Designation</label>
+                      <input type="text" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Department</label>
+                      <input type="text" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Phone</label>
+                      <input type="text" class="form-control" placeholder="01xxxxxxxxx">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-control" placeholder="name@company.com">
+                    </div>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <label class="form-label required">Detailed Problem Description</label>
+                  <textarea class="form-control" rows="8" placeholder="Describe the issue clearly... When did it start? What exactly happens?" required></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN – Same height, clean & useful -->
+            <div class="col-lg-6">
+              <div class="sticky-top" style="top: 1rem;">
+
+                <!-- Location + Device -->
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <label class="form-label required">Location</label>
+                        <select class="form-select" required>
+                          <option value="">Select location</option>
+                          <option>Dhaka Head Office</option>
+                          <option>Chittagong Branch</option>
+                          <option>Sylhet Office</option>
+                        </select>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label required">Building / Floor</label>
+                        <select class="form-select" required>
+                          <option value="">Select building</option>
+                          <option>Main Building – 5th Floor</option>
+                          <option>Annex – 3rd Floor</option>
+                        </select>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label">Device Number</label>
+                        <input type="text" class="form-control" placeholder="e.g. LAP-2024-056">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Issue Type -->
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <label class="form-label required">Issue Type</label>
+                    <select class="form-select" multiple style="height: 130px;" required>
+                      <option>Hardware</option>
+                      <option>Software</option>
+                      <option>Network</option>
+                      <option>Printer</option>
+                      <option>Email/Account</option>
+                      <option>Access Card</option>
+                      <option>Others</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Attachments -->
+                <div class="card mb-3">
+                  <div class="card-body py-4">
+                    <label class="form-label">Attachments (Optional)</label>
+                    <div class="upload-area" onclick="document.getElementById('files').click()">
+                      <i class="ti ti-upload" style="font-size: 36px; color: #206bc4;"></i>
+                      <div class="mt-2">Click or drop files</div>
+                      <small class="text-muted">Max 3 files • 20MB</small>
+                      <input type="file" id="files" multiple accept="image/*,.pdf" style="display:none">
+                    </div>
+                    <div id="fileList" class="mt-3"></div>
+                  </div>
+                </div>
+
+                <!-- Voice + Submit -->
+                <div class="card mb-3">
+                  <div class="card-body voice-box">
+                    <i class="ti ti-microphone" style="font-size: 28px; color: #206bc4;"></i>
+                    <div class="mt-2 fw-bold">Voice Message (Optional)</div>
+                    <button type="button" class="btn btn-danger btn-sm mt-2">Record</button>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                  Submit Ticket
+                </button>
+
+                <div class="text-center mt-3">
+                  <small class="text-muted">
+                    Urgent? Call <strong class="text-danger">01678-000000</strong>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+
+  <script>
+    document.getElementById('files').addEventListener('change', e => {
+      const list = document.getElementById('fileList');
+      list.innerHTML = '';
+      [...e.target.files].slice(0,3).forEach(f => {
+        list.innerHTML += `<div class="text-truncate mt-1"><i class="ti ti-file"></i> ${f.name}</div>`;
+      });
+    });
+  </script>
+</body>
+</html>
