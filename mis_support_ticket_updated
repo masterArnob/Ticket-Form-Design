@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>IT Support Helpdesk</title>
+    <!-- Bootstrap 5 -->
+    <link href="{{ asset('frontend/css/bootstrap5/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ asset('backend/css/fontawesome-free/css/all.css') }}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{{ asset('backend/plugin/select2/css/select2.min.css') }}">
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 30px 0;
+            min-height: 100vh;
+            background: #f8f1ff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .main-card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .header-gradient {
+            background: linear-gradient(135deg, #B0E0E6, #9370DB);
+            padding: 20px 10px;
+            text-align: center;
+        }
+        .header-gradient img {
+            height: 60px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+        .form-control,
+        .form-select {
+            border-radius: 14px;
+            border: 1.5px solid #e0e0e0;
+            padding: 12px 16px;
+            font-size: 1rem;
+        }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #9370DB;
+            box-shadow: 0 0 0 4px rgba(147, 112, 219, 0.2);
+        }
+        .btn {
+            border-radius: 16px;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #9370DB, #B0E0E6);
+            border: none;
+        }
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-box:hover {
+            border-color: #9370DB;
+            background: #f0e8ff;
+        }
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #9370DB;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .select2-container--default .select2-selection--multiple,
+        .select2-container--default .select2-selection--single {
+            border-radius: 14px !important;
+            border: 1.5px solid #e0e0e0 !important;
+            height: auto;
+            padding: 8px;
+        }
+        .record-bar {
+            border-radius: 30px;
+            padding: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+        <div class="loader"></div>
+    </div>
+
+    <div class="container">
+        <div class="card main-card mt-4">
+            <div class="header-gradient">
+                <img src="{{ asset('backend/images/logo/prg_logo.png') }}" class="img-fluid" alt="Logo">
+            </div>
+            <div class="card-body p-4">
+                <h4 class="text-center mt-3 mb-2 fw-bold" style="color: #333;">
+                    IT Support Helpdesk<br>
+                    <small class="text-muted">{{ $building->name ?? '' }} - {{ $building->location->name ?? '' }}</small>
+                </h4>
+                <p class="text-center text-muted mb-4">Need help? Submit your issue here.</p>
+
+                <form id="supportForm">
+                    @csrf
+                    <div class="row g-3">
+                        <!-- Staff ID -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Staff ID (স্টাফ আইডি) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="staffIdInput" placeholder="Enter your Staff ID" required>
+                        </div>
+
+                        <!-- Staff Info Fields - Initially Hidden -->
+                        <div id="staffInfoContainer" style="display: none;">
+                            <!-- Full Name -->
+                            <div class="col-md-12" id="fullNameField">
+                                <label class="form-label fw-semibold">Full Name (পূর্ণ নাম) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="staffNameInput" placeholder="Enter your full name" required>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="col-md-12 mt-3" id="phoneField">
+                                <label class="form-label fw-semibold">Phone Number (ফোন নম্বর) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="staffPhoneInput" placeholder="Enter your phone number" required>
+                            </div>
+
+                            <!-- Designation -->
+                            <div class="col-md-12 mt-3" id="designationField">
+                                <label class="form-label fw-semibold">Designation (পদবি)</label>
+                                <input type="text" class="form-control" id="staffDesignationInput" placeholder="Enter your designation">
+                            </div>
+
+                            <!-- Department -->
+                            <div class="col-md-12 mt-3" id="departmentField">
+                                <label class="form-label fw-semibold">Department (বিভাগ)</label>
+                                <input type="text" class="form-control" id="staffDepartmentInput" placeholder="Enter your department">
+                            </div>
+
+                            <!-- Email - Always visible -->
+                            <div class="col-md-12 mt-3">
+                                <label class="form-label fw-semibold">Email (ইমেইল) <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="staffEmailInput" placeholder="Enter your email" required>
+                            </div>
+                        </div>
+
+                        <!-- Device Number -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Device Number (ডিভাইস নাম্বার) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="deviceNumber" placeholder="Enter device number" required>
+                            <small id="deviceStatus" class="mt-1"></small>
+                        </div>
+
+                        <!-- Location & Building -->
+                        @if($building)
+                            <input type="hidden" id="locationDropdown" value="{{ $building->location_id }}">
+                            <input type="hidden" id="buildingDropdown" value="{{ $building->id }}">
+                        @else
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Location (স্থান) <span class="text-danger">*</span></label>
+                                <select id="locationDropdown" class="form-select select2" required>
+                                    <option value="">Select location</option>
+                                    @foreach($factoryBuilding as $factory)
+                                        <option value="{{ $factory['id'] }}">{{ $factory['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Building (ভবন) <span class="text-danger">*</span></label>
+                                <select id="buildingDropdown" class="form-select" required>
+                                    <option value="">Select building</option>
+                                </select>
+                            </div>
+                        @endif
+
+                        <!-- Issue Type -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Issue Type (সমস্যার ধরন) <span class="text-danger">*</span></label>
+                            <select class="form-select select2" id="issueType" multiple required>
+                                @foreach($issueTypes as $issueType)
+                                    <option value="{{ $issueType->id }}">{{ $issueType->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Details -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Details (সমস্যার বিস্তারিত) <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="issueDetails" rows="4" placeholder="Describe the problem..." required></textarea>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Attachment (Optional)</label>
+                            <div class="upload-box" id="uploadBox">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                <p>Click to upload files (Max 3 files, 20MB total)</p>
+                                <small>PNG, JPG, GIF allowed</small>
+                                <input type="file" id="file-upload" multiple accept="image/*" style="display:none;">
+                            </div>
+                            <div id="file-list" class="mt-3"></div>
+                            <small id="file-error" class="text-danger"></small>
+                        </div>
+
+                        <!-- Voice Recording -->
+                        <div class="col-12 mb-4">
+                            <label class="form-label fw-semibold">Record Voice Message (ভয়েস যুক্ত করুন)</label>
+                            <div class="d-flex gap-3">
+                                <button type="button" id="recordBtn" class="btn btn-light record-bar flex-grow-1">
+                                    <i class="fas fa-microphone"></i> Start Recording
+                                </button>
+                                <button type="button" id="pauseBtn" class="btn btn-warning d-none">Pause</button>
+                                <button type="button" id="stopBtn" class="btn btn-danger d-none">Stop</button>
+                            </div>
+                            <div class="mt-3 text-center">
+                                <span id="recordTimer" class="fw-bold">00:00</span> |
+                                <span id="recordStatus" class="text-muted">Ready</span>
+                            </div>
+                            <audio id="audioPlayback" controls class="mt-3 w-100 d-none" style="border-radius:16px;"></audio>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100 btn-lg shadow">
+                                <i class="fas fa-paper-plane"></i> Submit Ticket
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ asset('backend/js/jquery.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/bootstrap5/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('backend/plugin/select2/js/select2.full.min.js') }}"></script>
+    <script>
+        const factoryBuildingData = @json($factoryBuilding);
+        let mediaRecorder, audioChunks = [], audioBlob, timerInterval, seconds = 0;
+        const loader = document.getElementById('loaderOverlay');
+        const staffInfoContainer = document.getElementById('staffInfoContainer');
+
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: "Select...",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('#locationDropdown').on('change', function() {
+                const id = $(this).val();
+                const buildingSelect = $('#buildingDropdown');
+                buildingSelect.empty().append('<option value="">Select building</option>');
+                const factory = factoryBuildingData.find(f => f.id == id);
+                if (factory && factory.building) {
+                    factory.building.forEach(b => {
+                        buildingSelect.append(`<option value="${b.id}">${b.name}</option>`);
+                    });
+                }
+            });
+        });
+
+        // MAIN LOGIC: Staff ID → Fetch & Conditionally Show/Hide Fields
+        $('#staffIdInput').on('blur', function() {
+            const staffId = this.value.trim();
+            if (!staffId) {
+                staffInfoContainer.style.display = 'none';
+                return;
+            }
+
+            loader.style.display = 'flex';
+
+            const url = "{{ route('frontend.mis.support.ticket.get.hris.info', ['staff_id' => 'DUMMY']) }}".replace('DUMMY', staffId);
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    staffInfoContainer.style.display = 'block';
+
+                    // Helper to show/hide entire field
+                    const toggleField = (fieldId, value) => {
+                        const field = document.getElementById(fieldId);
+                        const input = field.querySelector('input');
+                        if (value && value.toString().trim() !== '') {
+                            input.value = value.trim();
+                            field.style.display = 'none';  // Completely hide
+                        } else {
+                            input.value = '';
+                            field.style.display = 'block'; // Show for manual entry
+                        }
+                    };
+
+                    // Apply logic
+                    toggleField('fullNameField', data.employee_name);
+                    toggleField('phoneField', data.contactno);
+                    toggleField('designationField', data.designation);
+                    toggleField('departmentField', data.department);
+
+                    // Email is always shown
+                    $('#staffEmailInput').val(data.email || '');
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Staff ID not found or server error. Please fill details manually.');
+                    staffInfoContainer.style.display = 'block';
+
+                    // Show all conditional fields for manual entry
+                    ['fullNameField', 'phoneField', 'designationField', 'departmentField'].forEach(id => {
+                        const field = document.getElementById(id);
+                        field.style.display = 'block';
+                        field.querySelector('input').value = '';
+                    });
+                    $('#staffEmailInput').val('');
+                })
+                .finally(() => {
+                    loader.style.display = 'none';
+                });
+        });
+
+        // File Upload Handler (unchanged)
+        const fileInput = document.getElementById('file-upload');
+        const fileList = document.getElementById('file-list');
+        const fileError = document.getElementById('file-error');
+        let selectedFiles = [];
+
+        document.getElementById('uploadBox').addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            const newFiles = Array.from(fileInput.files);
+            if (selectedFiles.length + newFiles.length > 3) {
+                fileError.textContent = 'Maximum 3 files allowed';
+                return;
+            }
+            const totalSize = [...selectedFiles, ...newFiles].reduce((a, f) => a + f.size, 0);
+            if (totalSize > 20 * 1024 * 1024) {
+                fileError.textContent = 'Total size cannot exceed 20MB';
+                return;
+            }
+            selectedFiles.push(...newFiles);
+            renderFiles();
+        });
+
+        function renderFiles() {
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, i) => {
+                const div = document.createElement('div');
+                div.className = 'alert alert-light d-flex justify-content-between align-items-center';
+                div.innerHTML = `${file.name} (${(file.size/1024/1024).toFixed(2)} MB)
+                    <button type="button" class="btn-close" onclick="selectedFiles.splice(${i},1); renderFiles();"></button>`;
+                fileList.appendChild(div);
+            });
+            const dt = new DataTransfer();
+            selectedFiles.forEach(f => dt.items.add(f));
+            fileInput.files = dt.files;
+        }
+
+        // Voice Recording (unchanged)
+        const recordBtn = document.getElementById('recordBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const audioPlayback = document.getElementById('audioPlayback');
+        const timerEl = document.getElementById('recordTimer');
+        const statusEl = document.getElementById('recordStatus');
+
+        recordBtn.addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                audioPlayback.src = URL.createObjectURL(audioBlob);
+                audioPlayback.classList.remove('d-none');
+                clearInterval(timerInterval);
+                seconds = 0;
+                timerEl.textContent = '00:00';
+                statusEl.textContent = 'Completed';
+            };
+            mediaRecorder.start();
+            recordBtn.classList.add('d-none');
+            pauseBtn.classList.remove('d-none');
+            stopBtn.classList.remove('d-none');
+            statusEl.textContent = 'Recording...';
+            timerInterval = setInterval(() => {
+                seconds++;
+                timerEl.textContent = String(Math.floor(seconds/60)).padStart(2,'0') + ':' + String(seconds%60).padStart(2,'0');
+            }, 1000);
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            if (mediaRecorder.state === 'recording') {
+                mediaRecorder.pause();
+                pauseBtn.innerHTML = 'Resume';
+                statusEl.textContent = 'Paused';
+                clearInterval(timerInterval);
+            } else {
+                mediaRecorder.resume();
+                pauseBtn.innerHTML = 'Pause';
+                statusEl.textContent = 'Recording...';
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    timerEl.textContent = String(Math.floor(seconds/60)).padStart(2,'0') + ':' + String(seconds%60).padStart(2,'0');
+                }, 1000);
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            recordBtn.classList.remove('d-none');
+            pauseBtn.classList.add('d-none');
+            stopBtn.classList.add('d-none');
+        });
+
+        // Form Submit
+        $('#supportForm').on('submit', function(e) {
+            e.preventDefault();
+
+            if (staffInfoContainer.style.display === 'none') {
+                alert('Please enter your Staff ID first.');
+                $('#staffIdInput').focus();
+                return;
+            }
+
+            const required = ['staffIdInput', 'staffNameInput', 'staffPhoneInput', 'deviceNumber', 'issueDetails', 'staffEmailInput'];
+            if ($('#locationDropdown').length && !$('#locationDropdown').val()) required.push('locationDropdown');
+            if ($('#buildingDropdown').length && !$('#buildingDropdown').val()) required.push('buildingDropdown');
+            if (!$('#issueType').val() || $('#issueType').val().length === 0) {
+                alert('Please select at least one issue type');
+                return;
+            }
+
+            for (let id of required) {
+                if (!$(`#${id}`).val().trim()) {
+                    alert('Please fill all required fields');
+                    $(`#${id}`).focus();
+                    return;
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('staff_id', $('#staffIdInput').val());
+            formData.append('staff_name', $('#staffNameInput').val());
+            formData.append('staff_phone', $('#staffPhoneInput').val());
+            formData.append('staff_designation', $('#staffDesignationInput').val() || '');
+            formData.append('staff_department', $('#staffDepartmentInput').val() || '');
+            formData.append('staff_email', $('#staffEmailInput').val());
+            formData.append('device_number', $('#deviceNumber').val());
+            formData.append('location_id', $('#locationDropdown').val() || '');
+            formData.append('building_id', $('#buildingDropdown').val() || '');
+            formData.append('issue_type', $('#issueType').val().join(','));
+            formData.append('details', $('#issueDetails').val());
+            selectedFiles.forEach((f, i) => formData.append('attachments[]', f));
+            if (audioBlob) formData.append('voice', audioBlob, 'voice.webm');
+
+            loader.style.display = 'flex';
+
+            fetch("{{ route('frontend.mis.support.ticket.store') }}", {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: formData
+            })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(() => {
+                bootstrap.Modal.getInstance(document.getElementById('successModal'))?.show() || new bootstrap.Modal(document.getElementById('successModal')).show();
+                this.reset();
+                selectedFiles = [];
+                renderFiles();
+                staffInfoContainer.style.display = 'none';
+                audioPlayback.classList.add('d-none');
+                document.querySelectorAll('#staffInfoContainer > div').forEach(div => div.style.display = 'none');
+            })
+            .catch(() => {
+                new bootstrap.Modal(document.getElementById('errorModal')).show();
+            })
+            .finally(() => loader.style.display = 'none');
+        });
+
+        // Device Number Validation
+        $('#deviceNumber').on('blur', function() {
+            const val = this.value.trim();
+            const status = $('#deviceStatus');
+            if (!val) return;
+            status.html('<span class="text-muted">Checking...</span>');
+            fetch("{{ route('frontend.mis.support.ticket.validate.pdf.code') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ device_number: val })
+            })
+            .then(r => r.json())
+            .then(d => {
+                status.html(d.status
+                    ? '<span class="text-success">Valid device</span>'
+                    : '<span class="text-danger">Invalid device number</span>');
+            });
+        });
+    </script>
+</body>
+</html>
