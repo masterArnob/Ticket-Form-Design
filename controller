@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Http\Controllers\Frontend\MISSupportTicket;
+
+use App\Http\Controllers\Controller;
+use App\Models\Backend\MISSupportTicket\Building;
+use App\Services\Backend\CommonModule\HrisApiService;
+use App\Services\Frontend\MISSupportTicketService;
+use App\Traits\ApiResponseTrait;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Http\Request;
+use Throwable;
+
+class MISSupportTicketController extends Controller
+{
+    use ApiResponseTrait;
+
+    function __construct(
+        protected readonly MISSupportTicketService $misSupportTicketService,
+
+    )
+    {
+
+    }
+
+    /**
+     * @throws BindingResolutionException
+     */
+    function getUserInfoByStaffId(string $staffId)
+    {
+        $hrisApiService = app()->make(HrisApiService::class);
+        return $hrisApiService->fetchUserInformationUsingStaffId($staffId);
+    }
+
+    function index(string $qr_code = null)
+    {
+
+        $factoryBuilding = $this->misSupportTicketService->FactoryWithBuilding();
+        $issueTypes = $this->misSupportTicketService->getIssueList();
+        $building = Building::query()->where('qr_code', $qr_code)->first();
+        return view('frontend.modules.mis_support.index', compact('factoryBuilding', 'issueTypes','building'));
+    }
+
+    /**
+     * @throws Throwable
+     * @throws BindingResolutionException
+     */
+    function store(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'staff_id' => 'required',
+            'staff_name' => 'required',
+            'location_id' => 'required',
+            'building_id' => 'required',
+            'issue_type' => 'required',
+            'details' => 'required',
+            'staff_email' => 'required',
+            'device_number' => 'required'
+
+        ]);
+        try {
+            $this->misSupportTicketService->storeTicket($request);
+            return $this->success(null, 'Successfully Created Ticket');
+        } catch (\Exception $ex) {
+            return $this->error(null, $ex->getMessage());
+        }
+    }
+
+    function tracking($id)
+    {
+        $ticket = $this->misSupportTicketService->getTicketInfoById($id);
+
+
+        return view('frontend.modules.mis_support.tracking', compact('ticket'));
+    }
+
+
+    function validatePdfCode(Request $request)
+    {
+        $pdtCode = $request->input('device_number');
+        // $url = "http://172.17.2.112/PRISM/Project/invlogin/api.php/?pdt_code=" . urlencode($pdtCode);
+        $url = "http://172.17.2.112/PRISM/Project/invlogin/api.php?action=searchcode&code=" . urlencode($pdtCode);
+        $curl = curl_init();
+        $headers[] = 'Cookie: PHPSESSID=' . "ftvud7pbp5q8agvev2cqe30s72";
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => $headers,
+        ]);
+
+        $response = curl_exec($curl);
+
+        if (curl_errno($curl)) {
+            $error = curl_error($curl);
+            curl_close($curl);
+            return ['error' => $error];
+        }
+
+        curl_close($curl);
+        $decoded = json_decode($response, true);
+        return $decoded !== null ? $decoded : $response;
+    }
+
+
+}
