@@ -205,3 +205,327 @@ dashboard_module/pages/agent_hr_module/widgits/work_areas/work_areas.blade.php
         </div>
     </div>
 </div>
+
+
+
+
+index code
+@extends('backend.template.layout')
+@section('per_page_css')
+<link rel="stylesheet" href="{{ asset('backend/plugin/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ asset('backend/plugin/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ asset('backend/plugin/select2/css/select2.min.css') }}">
+<link rel="stylesheet" href="{{ asset('backend/css/font-awesome-6.5.1/all.min.css') }}" />
+<link rel="stylesheet" href="{{ asset('backend/plugin/loading-bar/loading-bar.min.css') }}">
+<link rel="stylesheet" href="{{ asset('backend/plugin/daterangepicker/daterangepicker.css') }}">
+<style>
+    .text-warning {
+        color: purple !important;
+    }
+
+    .badge-fixed {
+        display: inline-block;
+        min-width: 48px;
+        text-align: center;
+        font-weight: 500;
+        padding: 0.4em 0.6em;
+        font-size: 0.85rem;
+        border-radius: 0.375rem;
+    }
+
+    /* Primary */
+    .bg-primary-subtle {
+        background-color: #e0f0ff !important;
+    }
+
+    .text-primary {
+        color: #0d6efd !important;
+        font-weight: bold;
+    }
+
+    /* Info */
+    .bg-info-subtle {
+        background-color: #d1f3ff !important;
+    }
+
+    .text-info {
+        color: #0091ae !important;
+        font-weight: bold;
+    }
+
+    /* Pink (Custom) */
+    .bg-pink-subtle {
+        background-color: #fce4ec !important;
+    }
+
+    .text-pink {
+        color: #d63384 !important;
+        font-weight: bold;
+    }
+
+    /* Danger */
+    .bg-danger-subtle {
+        background-color: #f8d7da !important;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+        font-weight: bold;
+    }
+
+    /* Secondary */
+    .bg-secondary-subtle {
+        background-color: #e2e3e5 !important;
+    }
+
+    .text-secondary {
+        color: #6c757d !important;
+        font-weight: bold;
+    }
+
+    /* Warning */
+    .bg-warning-subtle {
+        background-color: #f17bff !important;
+    }
+
+    .text-warning {
+        color: #000000 !important;
+        font-weight: bold;
+    }
+
+    /* Light */
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .text-dark {
+        color: #212529 !important;
+        font-weight: bold;
+    }
+
+    .download-btn .fa-download {
+        background: #3862c0;
+        padding: 5px;
+        border-radius: 100%;
+        color: white;
+    }
+    #agenthr-dashboard p, td, th, span, h5{
+        font-size: 11px!important;
+    }
+    #agenthr-dashboard .card-body{
+        padding: 10px;
+    }
+</style>
+@endsection
+@section('content')
+<!-- Main content -->
+<div class="content" style="padding: 0 15px 15px 5px;">
+    <div class="container-fluid pt-1" id="agenthr-dashboard">
+
+        <div class="row mb-1 justify-content-between align-items-center">
+            <div class="col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Dashboard Title -->
+                    <h1 class="mb-0">Agent HR Management Dashboard</h1>
+
+                    <!-- Fullscreen Button -->
+                    <button id="fullscreenBtn" type="button" class="btn btn-outline-primary btn-lg"
+                        title="Full Screen"
+                        style="border-radius: 50%; width: 50px; height: 50px;">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12">
+                <div class="card p-2">
+                    <div class="card-header rounded-top mb-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0">Select Location</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <select name="" class="form-control" width="100" id="location-statistics"
+                                    onchange="statisticsLocationChange(false)">
+                                    <option value="">All Location</option>
+                                    @foreach ($allLocation as $location)
+                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9 mb-2">
+                <!-- statistics -->
+                @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.statistics.statistics')
+                <!-- statistics end -->
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <!-- Gender Wise Report -->
+                        @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.gender_report.gender_report')
+                        <!-- Gender Wise Report -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-12 col-md-12 mb-3">
+                <div class="row h-100">
+                    <div class="col-md-12 mb-2">
+                        <!-- work area -->
+                        @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.work_areas.work_areas')
+                        <!-- work area end -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-9 col-lg-12 col-md-12 mb-3">
+                <div class="row h-100">
+                    <div class="col-xl-6 col-12 mb-2">
+                        <!-- Office Type Wise Report -->
+                        @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.office_type_report.office_type_report')
+                        <!-- Office Type Wise Report -->
+                    </div>
+                    <div class="col-xl-6 col-12 mb-2">
+                        <!-- job status -->
+                        @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.job_status.job_status')
+                        <!-- job status -->
+                    </div>
+                    
+                    <!-- agent onboarding report -->
+                    <div class="col-xl-6 col-12 mb-3">
+                        @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.agent_onboarding_report.agent_onboarding_data')
+                    </div>
+
+                    <!-- selected by graph -->
+                    <div class="col-xl-6 col-12 mb-3">
+                        @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.agent_selected_by_data.agent_selected_by_data')
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="row h-100">
+
+
+                    <!-- day wise agent onboarding graph -->
+                    <div class="col-xl-12 col-12 mb-3">
+                        @include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.day_wise_agent_onboarding.day_wise_agent_onboarding')
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- /.content -->
+@endsection
+@section('per_page_js')
+<script src="{{ asset('backend/plugin/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('backend/plugin/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('backend/plugin/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('backend/plugin/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('backend/plugin/select2/js/select2.full.min.js') }}"></script>
+<script src="{{ asset('backend/js/custom-script.min.js') }}"></script>
+<script src="{{ asset('backend/js/ajax_form_submit.js') }}"></script>
+<script src="{{ asset('backend/plugin/chart.js/Chart.min.js') }}"></script>
+<script src="{{ asset('backend/plugin/apexchart/apexcharts.js') }}"></script>
+<script src="{{ asset('backend/plugin/loading-bar/loading-bar.js') }}"></script>
+<script src="{{ asset('backend/plugin/daterangepicker/moment.min.js') }}"></script>
+<script src="{{ asset('backend/plugin/daterangepicker/daterangepicker.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const dashboardSection = document.getElementById('othoba-dashboard');
+
+        fullscreenBtn.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                // Request fullscreen for the specific section
+                dashboardSection.requestFullscreen().then(() => {
+                    dashboardSection.style.overflowY = 'auto'; // Enable scrolling
+                    this.innerHTML = '<i class="fas fa-compress"></i>';
+                }).catch(err => {
+                    console.error(`Error trying to enter fullscreen: ${err.message}`);
+                });
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        this.innerHTML = '<i class="fas fa-expand"></i>';
+                    }).catch(err => {
+                        console.error(`Error trying to exit fullscreen: ${err.message}`);
+                    });
+                }
+            }
+        });
+
+    });
+</script>
+
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.statistics.statistics_script')
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.work_areas.work_areas_script')
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.job_status.job_status_script')
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.office_type_report.office_type_report_script')
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.gender_report.gender_report_script')
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.agent_onboarding_report.agent_onboarding_script')
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.agent_selected_by_data.agent_selected_by_data_script')
+@include('backend.modules.dashboard_module.pages.agent_hr_management.widgets.day_wise_agent_onboarding.day_wise_agent_onboarding_script')
+
+<script>
+    function showLoader() {
+        toastr.info('Fetching data...', 'Loading', {
+            closeButton: false,
+            timeOut: 0,
+            extendedTimeOut: 0,
+            tapToDismiss: false
+        });
+    }
+
+    function hideLoader() {
+        toastr.clear();
+    }
+
+    async function loadData(btnClick = true) {
+        showLoader();
+        await Promise.all([
+            fetchAgentHrManagementStatistics(btnClick),
+            fetchWorkAreaReport(btnClick),
+            fetchJobStatusReport(btnClick),
+            fetchOfficeTypeWiseReport(btnClick),
+            fetchGenderReport(btnClick),
+            renderAgentHrReport(),
+            fetchSelectedByReport(),
+        ]);
+        hideLoader();
+    }
+
+    loadData(false)
+
+    async function statisticsLocationChange(btnClick) {
+        showLoader();
+        await Promise.all([
+            fetchAgentHrManagementStatistics(btnClick),
+            fetchWorkAreaReport(btnClick),
+            fetchJobStatusReport(btnClick),
+            fetchGenderReport(btnClick),
+            renderAgentHrReport(),
+            fetchSelectedByReport(btnClick)
+        ]);
+        hideLoader();
+    }
+</script>
+@endsection
