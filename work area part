@@ -1,0 +1,207 @@
+dashboard_module/pages/agent_hr_module/widgits/work_areas/work_areas_script.blade.php
+<script>
+    async function fetchWorkAreaReport(btnClick) {
+        let url = "{{ route('admin.agent.hr.management.work.area.report',':location_id') }}"
+        let locationId = document.getElementById("location-statistics").value
+        url = url.replace(":location_id", locationId)
+
+        if (btnClick) {
+            showLoader()
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(response => {
+                if (response.status == "success") {
+                    const accordionArea = document.querySelector("#accordionArea");
+                    accordionArea.html = '';
+                    const data = response.data;
+
+                    let html = "";
+                    for (let index in data) {
+                        let value = data[index];
+                        let total = 0;
+                        let totalMale = 0;
+                        let totalFemale = 0;
+                        let workAreaId = value[0] ? value[0].workAreaId : null;
+
+                            html += `
+                            <div class="accordion" id="accordionParent-${index}">
+                                <div class="card">
+                                    <div class="card-header" >
+                                        <h5 class="mb-0">
+                                            <button class="btn" style="color: #007bff" data-toggle="collapse" data-target="#collaps-${index}" aria-expanded="false" aria-controls="collaps-${index}">
+                                                <i class="fas fa-angle-down"></i> ${index}
+                                            </button>
+                                            <form action="{{ route('admin.hr-module.agent-hr-management.export') }}" style="display: contents" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="search_job_status_id" value="1">
+                                                <input type="hidden" name="search_work_area_id" value="${workAreaId}">
+                                                <input type="hidden" name="search_location_id" value="${locationId}">
+                                                <button type="submit" class="download-btn" style="background: none; border: none">
+                                                    <i class="fas fa-download" ></i>
+                                                </button>
+                                            </form>
+                                        </h5>
+                                    </div>`;
+
+                            //bu wise sorting
+                            value.sort((a, b) => a.name.localeCompare(b.name));
+
+                            for (let index2 in value) {
+                                let buData = value[index2];
+
+                            html += `<div id="collaps-${index}" class="collapse" data-parent="#accordionParent-${index}">
+                                        <!-- Nested BU accordion -->
+                                        <div class="accordion" id="accordiionParent-${index}-${index2}">
+                                            <div class="card">
+                                                <div class="card-header" style="background: #ffffff" id="headingBU1">
+                                                    <h5 class="mb-0">
+                                                        <button class="btn" style="color: #304830" data-toggle="collapse" data-target="#collaps-bu-${index}-${index2}" aria-expanded="false" aria-controls="collapseBU1">
+                                                            <i class="fas fa-angle-down"></i> ${buData.name} | Total: ${parseInt(buData.male) + parseInt(buData.female)} | Male: ${buData.male} | Female: ${buData.female}
+                                                        </button>
+                                                        <form action="{{ route('admin.hr-module.agent-hr-management.export') }}" style="display: contents" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="search_job_status_id" value="1">
+                                                            <input type="hidden" name="search_work_area_id" value="${workAreaId}">
+                                                            <input type="hidden" name="search_business_unit_id" value="${buData.businessUnitId ?? ''}">
+                                                            <input type="hidden" name="search_location_id" value="${locationId}">
+                                                            <button type="submit" class="download-btn" style="background: none; border: none">
+                                                                <i class="fas fa-download" ></i>
+                                                            </button>
+                                                        </form>
+                                                    </h5>
+                                                </div>
+                                                <div id="collaps-bu-${index}-${index2}" class="collapse" aria-labelledby="headingBU1" data-parent="#accordiionParent-${index}-${index2}">
+                                                        <div class="card-body">
+                                                            <div class="col-md-12">
+                                                                <table class="table">
+                                                                    <thead>
+                                                                        <th>Name</th>
+                                                                        <th>StaffId</th>
+                                                                        <th>Gender</th>
+                                                                    </thead>
+                                                `;
+
+                                                        for (let index3 in buData.users) {
+                                                            let user = buData.users[index3];
+
+                                                            if(user.gender === "Male"){
+                                                                total++;
+                                                                totalMale++;
+                                                            }
+                                                            if(user.gender === "Female"){
+                                                                total++;
+                                                                totalFemale++;
+                                                            }
+
+                                                            html += `<tbody>
+                                                                        <th>${user.name}</th>
+                                                                        <th>${user.staff_id}</th>
+                                                                        <th>${user.gender}</th>
+                                                                    </tbody>`;
+                                                        }
+
+
+                                                        html += `</table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Nested BU accordion end -->
+                                        </div>`;
+                            }
+
+
+                        html += `
+                                <div class="card-footer" >
+                                        <p class="mb-0">
+                                            Total: <span id="total">${total}</span> |
+                                            Male: <span id="total">${totalMale}</span> |
+                                            Female: <span id="total">${totalFemale}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }
+
+                    accordionArea.innerHTML = html;
+
+                }
+                if (btnClick) {
+                    hideLoader()
+                }
+            })
+            .catch(response => {
+                if (btnClick) {
+                    hideLoader()
+                }
+            })
+    }
+</script>
+
+dashboard_module/pages/agent_hr_module/widgits/work_areas/work_areas.blade.php
+
+<style>
+    #work-area-table {
+        margin: auto;
+        border-collapse: collapse;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        width: 100%;
+    }
+
+    #work-area-table th,
+    #work-area-table td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    #work-area-table th {
+        background: #1c1d21;
+        color: white;
+    }
+
+    #work-area-table tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    #work-area-table tr:hover {
+        background: #f1f1f1;
+    }
+
+    .accordion .card-header {
+        padding: 0;
+    }
+
+    .accordion .card-body {
+        padding: 0;
+    }
+    .accordion .card{
+        margin: 10px;
+        background: #ffffff;
+    }
+
+    .accordion .card-body {
+        box-shadow: none;
+    }
+</style>
+<div class="card p-2 h-100">
+    <div class="card-header rounded-top mb-3">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Work Areas</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="col-md-12 table-responsive" id="accordionArea">
+
+            </div>
+        </div>
+    </div>
+</div>
