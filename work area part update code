@@ -189,6 +189,14 @@ work area blade code
 
 
 
+
+
+
+
+
+
+
+
 work area script blade code
 <script>
     async function fetchWorkAreaReport(btnClick) {
