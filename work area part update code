@@ -1,4 +1,4 @@
-work area blade code
+work area blaed code
 <style>
     #work-area-table {
         margin: auto;
@@ -115,6 +115,11 @@ work area blade code
             gap: 10px;
         }
     }
+
+
+
+
+
 </style>
 
 
@@ -143,11 +148,11 @@ work area blade code
         <div class="modal-content">
 
             <div class="modal-header d-flex justify-content-between align-items-center">
-                <h5 class="modal-title" id="agentDetailModalLabel">List</h5>
+                <h5 class="modal-title" id="agentDetailModalLabel"></h5>
 
                 <div class="d-flex align-items-center gap-2">
 
-                    
+
                     <form action="{{ route('admin.hr-module.agent-hr-management.export') }}" method="POST">
                         @csrf
                         <input type="hidden" id="modal_job_status" name="search_job_status_id" value="1">
@@ -155,18 +160,23 @@ work area blade code
                         <input type="hidden" id="modal_business_unit" name="search_business_unit_id">
                         <input type="hidden" id="modal_location" name="search_location_id">
 
-                        <button type="submit" class="btn btn-info btn-sm mx-2">
+                        <button type="submit" class="btn btn-sm mx-2"
+                            style="background-color: rgb(30, 136, 229); color: #fff;">
                             <i class="fas fa-download"></i>
                         </button>
                     </form>
 
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal"
+                        aria-label="Close">
                         <span aria-hidden="true" style="font-size: 20px;">×</span>
                     </button>
                 </div>
             </div>
 
             <div class="modal-body">
+                <div id="modalSummary" class="mb-3" style="display:none; font-weight:600; background-color: rgb(30, 136, 229); color: #fff; padding: 10px; border-radius: 4px;"></div>
+
+
                 <div class="mb-3">
                     <input type="text" id="search" class="form-control" placeholder="Search users...">
                 </div>
@@ -186,6 +196,9 @@ work area blade code
         </div>
     </div>
 </div>
+
+
+
 
 
 
@@ -255,15 +268,15 @@ work area script blade code
                         <div id="collaps-${index}" class="collapse" data-parent="#accordionParent-${index}">
                             <div class="accordion" id="accordiionParent-${index}-${index2}">
                                 <div class="card">
-                                    <div class="card-header" style="background: #ffffff" id="headingBU1">
+                                    <div class="" style="background: #ffffff" id="headingBU1">
                                         <h5 class="mb-0">
-                                            <button
-                                                class="btn open-bu-modal"
-                                                style="color: #304830"
-                                                data-bu='${JSON.stringify(buData)}'
-                                                aria-expanded="false">
-                                              ${buData.name} | Total: ${parseInt(buData.male) + parseInt(buData.female)} | Male: ${buData.male} | Female: ${buData.female}
-                                            </button>
+                                          <button
+                                            class="btn open-bu-modal"
+                                            style="color: #304830"
+                                            data-bu="${JSON.stringify(buData).replace(/"/g, '&quot;')}"
+                                            aria-expanded="false">
+                                            ${buData.name}
+                                        </button>
                                         </h5>
                                     </div>
 
@@ -346,21 +359,35 @@ work area script blade code
                     `;
                     workTableBody.appendChild(tr);
                 });
+            } else {
+                alert(`No agents found in "${buData.name}"`);
+                return;
             }
+
+            document.getElementById("agentDetailModalLabel").innerText = "List of " + (buData.name ?? "");
+            // SHOW TOTALS INSIDE MODAL
+            let total = (parseInt(buData.male) + parseInt(buData.female)) || 0;
+
+            document.getElementById("modalSummary").style.display = "block";
+            document.getElementById("modalSummary").innerHTML = `
+                <span style="font-size:15px;">
+                <strong>Total:</strong> ${total} &nbsp; | &nbsp;
+                <strong>Male:</strong> ${buData.male} &nbsp; | &nbsp;
+                <strong>Female:</strong> ${buData.female}
+                </span>
+                `;
 
             // FILL MODAL DOWNLOAD HIDDEN FIELDS
             document.getElementById("modal_work_area").value = buData.workAreaId ?? '';
             document.getElementById("modal_business_unit").value = buData.businessUnitId ?? '';
             document.getElementById("modal_location").value =
-                document.getElementById("location-statistics").value;
-
+            document.getElementById("location-statistics").value;
             $('#productModal').modal('show');
         }
     });
 
-
     // Toggle icon
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", function(e) {
         const btn = e.target.closest('button[data-toggle="collapse"]');
         if (!btn) return;
 
@@ -376,7 +403,7 @@ work area script blade code
 
 
     // Dynamic modal search
-    document.getElementById("search").addEventListener("keyup", function () {
+    document.getElementById("search").addEventListener("keyup", function() {
         let keyword = this.value.toLowerCase().trim();
         let rows = document.querySelectorAll("#workTableBody tr");
 
