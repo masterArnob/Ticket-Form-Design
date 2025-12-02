@@ -1,10 +1,10 @@
-work arrea blade
+work area blade code
 <style>
     #work-area-table {
         margin: auto;
         border-collapse: collapse;
         background: #fff;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         overflow: hidden;
         width: 100%;
     }
@@ -46,7 +46,6 @@ work arrea blade
         box-shadow: none;
     }
 
-    /* HEADER LEFT + RIGHT ALIGNMENT */
     .card-header h5 {
         display: flex !important;
         justify-content: space-between;
@@ -66,11 +65,10 @@ work arrea blade
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 40px; /* fixed x-axis */
+        width: 40px;
         flex-shrink: 0;
     }
 
-    /* DOWNLOAD BUTTON */
     .download-btn {
         background: none;
         border: none;
@@ -86,11 +84,10 @@ work arrea blade
     }
 
     .download-btn:hover {
-        background: rgba(0,123,255,0.1);
+        background: rgba(0, 123, 255, 0.1);
         color: #0056b3;
     }
 
-    /* BUTTON ICON SPACING */
     .btn i {
         margin-right: 6px;
     }
@@ -100,7 +97,26 @@ work arrea blade
         align-items: center;
         gap: 6px;
     }
+
+    .modal-header .btn i {
+        pointer-events: none;
+    }
+
+    .modal-header .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 576px) {
+        .modal-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
 </style>
+
 
 <div class="card p-2 h-100">
     <div class="card-header rounded-top mb-3">
@@ -110,27 +126,78 @@ work arrea blade
             </div>
         </div>
     </div>
+
     <div class="card-body p-0">
         <div class="row">
             <div class="col-md-12 table-responsive" id="accordionArea">
-                <!-- Dynamic content will be injected here -->
+                <!-- Dynamic content loaded here -->
             </div>
         </div>
     </div>
 </div>
 
 
+<!-- BU Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header d-flex justify-content-between align-items-center">
+                <h5 class="modal-title" id="agentDetailModalLabel">List</h5>
+
+                <div class="d-flex align-items-center gap-2">
+
+                    
+                    <form action="{{ route('admin.hr-module.agent-hr-management.export') }}" method="POST">
+                        @csrf
+                        <input type="hidden" id="modal_job_status" name="search_job_status_id" value="1">
+                        <input type="hidden" id="modal_work_area" name="search_work_area_id">
+                        <input type="hidden" id="modal_business_unit" name="search_business_unit_id">
+                        <input type="hidden" id="modal_location" name="search_location_id">
+
+                        <button type="submit" class="btn btn-info btn-sm mx-2">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </form>
+
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" style="font-size: 20px;">×</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" id="search" class="form-control" placeholder="Search users...">
+                </div>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>StaffId</th>
+                            <th>Gender</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workTableBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 
-work area script blade
+
+work area script blade code
 <script>
     async function fetchWorkAreaReport(btnClick) {
-        let url = "{{ route('admin.agent.hr.management.work.area.report',':location_id') }}"
-        let locationId = document.getElementById("location-statistics").value
-        url = url.replace(":location_id", locationId)
+        let url = "{{ route('admin.agent.hr.management.work.area.report', ':location_id') }}";
+        let locationId = document.getElementById("location-statistics").value;
+        url = url.replace(":location_id", locationId);
 
         if (btnClick) {
-            showLoader()
+            showLoader();
         }
 
         fetch(url)
@@ -138,10 +205,11 @@ work area script blade
             .then(response => {
                 if (response.status == "success") {
                     const accordionArea = document.querySelector("#accordionArea");
-                    accordionArea.html = '';
-                    const data = response.data;
+                    accordionArea.innerHTML = '';
 
+                    const data = response.data;
                     let html = "";
+
                     for (let index in data) {
                         let value = data[index];
                         let total = 0;
@@ -149,121 +217,173 @@ work area script blade
                         let totalFemale = 0;
                         let workAreaId = value[0] ? value[0].workAreaId : null;
 
+                        html += `
+                    <div class="accordion" id="accordionParent-${index}">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <button class="btn" style="color: #007bff" data-toggle="collapse" data-target="#collaps-${index}" aria-expanded="false" aria-controls="collaps-${index}">
+                                        <i class="fas fa-angle-down"></i> ${index}
+                                    </button>
+
+                                    <form action="{{ route('admin.hr-module.agent-hr-management.export') }}" style="display: contents" method="POST" class="download-form">
+                                        @csrf
+                                        <input type="hidden" name="search_job_status_id" value="1">
+                                        <input type="hidden" name="search_work_area_id" value="${workAreaId}">
+                                        <input type="hidden" name="search_location_id" value="${locationId}">
+                                        <button type="submit" class="download-btn">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </form>
+                                </h5>
+                            </div>`;
+
+                        value.sort((a, b) => a.name.localeCompare(b.name));
+
+                        for (let index2 in value) {
+                            let buData = value[index2];
+
                             html += `
-                            <div class="accordion" id="accordionParent-${index}">
+                        <div id="collaps-${index}" class="collapse" data-parent="#accordionParent-${index}">
+                            <div class="accordion" id="accordiionParent-${index}-${index2}">
                                 <div class="card">
-                                    <div class="card-header" >
+                                    <div class="card-header" style="background: #ffffff" id="headingBU1">
                                         <h5 class="mb-0">
-                                            <button class="btn" style="color: #007bff" data-toggle="collapse" data-target="#collaps-${index}" aria-expanded="false" aria-controls="collaps-${index}">
-                                                <i class="fas fa-angle-down"></i> ${index}
+                                            <button
+                                                class="btn open-bu-modal"
+                                                style="color: #304830"
+                                                data-bu='${JSON.stringify(buData)}'
+                                                aria-expanded="false">
+                                              ${buData.name} | Total: ${parseInt(buData.male) + parseInt(buData.female)} | Male: ${buData.male} | Female: ${buData.female}
                                             </button>
-                                            <form action="{{ route('admin.hr-module.agent-hr-management.export') }}" style="display: contents" method="POST" class="download-form">
-                                                @csrf
-                                                <input type="hidden" name="search_job_status_id" value="1">
-                                                <input type="hidden" name="search_work_area_id" value="${workAreaId}">
-                                                <input type="hidden" name="search_location_id" value="${locationId}">
-                                                <button type="submit" class="download-btn">
-                                                    <i class="fas fa-download" ></i>
-                                                </button>
-                                            </form>
                                         </h5>
-                                    </div>`;
+                                    </div>
 
-                            //bu wise sorting
-                            value.sort((a, b) => a.name.localeCompare(b.name));
+                                    <div id="collaps-bu-${index}-${index2}" class="collapse" aria-labelledby="headingBU1" data-parent="#accordiionParent-${index}-${index2}">
+                                        <div class="card-body">
+                                            <div class="col-md-12">
+                                                <table class="table">
+                                                    <thead>
+                                                        <th>Name</th>
+                                                        <th>StaffId</th>
+                                                        <th>Gender</th>
+                                                    </thead>`;
 
-                            for (let index2 in value) {
-                                let buData = value[index2];
+                            for (let index3 in buData.users) {
+                                let user = buData.users[index3];
 
-                            html += `<div id="collaps-${index}" class="collapse" data-parent="#accordionParent-${index}">
-                                        <!-- Nested BU accordion -->
-                                        <div class="accordion" id="accordiionParent-${index}-${index2}">
-                                            <div class="card">
-                                                <div class="card-header" style="background: #ffffff" id="headingBU1">
-                                                    <h5 class="mb-0">
-                                                        <button class="btn" style="color: #304830" data-toggle="collapse" data-target="#collaps-bu-${index}-${index2}" aria-expanded="false" aria-controls="collapseBU1">
-                                                            <i class="fas fa-angle-down"></i> ${buData.name} | Total: ${parseInt(buData.male) + parseInt(buData.female)} | Male: ${buData.male} | Female: ${buData.female}
-                                                        </button>
-                                                        <form action="{{ route('admin.hr-module.agent-hr-management.export') }}" style="display: contents" method="POST">
-                                                            @csrf
-                                                            <input type="hidden" name="search_job_status_id" value="1">
-                                                            <input type="hidden" name="search_work_area_id" value="${workAreaId}">
-                                                            <input type="hidden" name="search_business_unit_id" value="${buData.businessUnitId ?? ''}">
-                                                            <input type="hidden" name="search_location_id" value="${locationId}">
-                                                            <button type="submit" class="download-btn" style="background: none; border: none">
-                                                                <i class="fas fa-download" ></i>
-                                                            </button>
-                                                        </form>
-                                                    </h5>
-                                                </div>
-                                                <div id="collaps-bu-${index}-${index2}" class="collapse" aria-labelledby="headingBU1" data-parent="#accordiionParent-${index}-${index2}">
-                                                        <div class="card-body">
-                                                            <div class="col-md-12">
-                                                                <table class="table">
-                                                                    <thead>
-                                                                        <th>Name</th>
-                                                                        <th>StaffId</th>
-                                                                        <th>Gender</th>
-                                                                    </thead>
-                                                `;
+                                if (user.gender === "Male") totalMale++;
+                                if (user.gender === "Female") totalFemale++;
+                                if (user.gender) total++;
 
-                                                        for (let index3 in buData.users) {
-                                                            let user = buData.users[index3];
-
-                                                            if(user.gender === "Male"){
-                                                                total++;
-                                                                totalMale++;
-                                                            }
-                                                            if(user.gender === "Female"){
-                                                                total++;
-                                                                totalFemale++;
-                                                            }
-
-                                                            html += `<tbody>
-                                                                        <th>${user.name}</th>
-                                                                        <th>${user.staff_id}</th>
-                                                                        <th>${user.gender}</th>
-                                                                    </tbody>`;
-                                                        }
-
-
-                                                        html += `</table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Nested BU accordion end -->
-                                        </div>`;
+                                html += `<tbody>
+                                        <th>${user.name}</th>
+                                        <th>${user.staff_id}</th>
+                                        <th>${user.gender}</th>
+                                    </tbody>`;
                             }
 
-
-                        html += `
-                                <div class="card-footer" >
-                                        <p class="mb-0">
-                                            Total: <span id="total">${total}</span> |
-                                            Male: <span id="total">${totalMale}</span> |
-                                            Female: <span id="total">${totalFemale}</span>
-                                        </p>
+                            html += `
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>`;
+                            </div>
+                        </div>`;
+                        }
+
+                        html += `
+                        <div class="card-footer">
+                            <p class="mb-0">
+                                Total: <span>${total}</span> |
+                                Male: <span>${totalMale}</span> |
+                                Female: <span>${totalFemale}</span>
+                            </p>
+                        </div>
+                    </div>
+                    </div>`;
                     }
 
                     accordionArea.innerHTML = html;
+                }
 
-                }
-                if (btnClick) {
-                    hideLoader()
-                }
+                if (btnClick) hideLoader();
             })
             .catch(response => {
-                if (btnClick) {
-                    hideLoader()
-                }
-            })
+                if (btnClick) hideLoader();
+            });
     }
+
+
+    /* ------------------------------
+       OPEN MODAL DOWNLOAD FORM
+    ------------------------------ */
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.open-bu-modal')) {
+
+            const btn = e.target.closest('.open-bu-modal');
+            const buData = JSON.parse(btn.getAttribute('data-bu'));
+
+            const workTableBody = document.getElementById('workTableBody');
+            workTableBody.innerHTML = '';
+
+            if (buData.users && buData.users.length > 0) {
+                buData.users.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${user.name || ''}</td>
+                        <td>${user.staff_id || ''}</td>
+                        <td>${user.gender || ''}</td>
+                    `;
+                    workTableBody.appendChild(tr);
+                });
+            }
+
+            // FILL MODAL DOWNLOAD HIDDEN FIELDS
+            document.getElementById("modal_work_area").value = buData.workAreaId ?? '';
+            document.getElementById("modal_business_unit").value = buData.businessUnitId ?? '';
+            document.getElementById("modal_location").value =
+                document.getElementById("location-statistics").value;
+
+            $('#productModal').modal('show');
+        }
+    });
+
+
+    // Toggle icon
+    document.addEventListener("click", function (e) {
+        const btn = e.target.closest('button[data-toggle="collapse"]');
+        if (!btn) return;
+
+        const icon = btn.querySelector("i");
+        if (!icon) return;
+
+        if (icon.classList.contains("fa-angle-down")) {
+            icon.classList.replace("fa-angle-down", "fa-angle-up");
+        } else if (icon.classList.contains("fa-angle-up")) {
+            icon.classList.replace("fa-angle-up", "fa-angle-down");
+        }
+    });
+
+
+    // Dynamic modal search
+    document.getElementById("search").addEventListener("keyup", function () {
+        let keyword = this.value.toLowerCase().trim();
+        let rows = document.querySelectorAll("#workTableBody tr");
+
+        rows.forEach(row => {
+            let name = row.children[0].textContent.toLowerCase();
+            let staffId = row.children[1].textContent.toLowerCase();
+            let gender = row.children[2].textContent.toLowerCase();
+
+            if (name.includes(keyword) ||
+                staffId.includes(keyword) ||
+                gender.includes(keyword)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
 </script>
-
-
-
