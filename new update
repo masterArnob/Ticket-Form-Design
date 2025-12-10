@@ -1,0 +1,42 @@
+<div class="card widget-card mb-4">
+    <div class="card-body">
+        <div class="row align-items-end">
+
+                        {{-- Document Name --}}
+            <div class="col-md-2 col-12">
+                <label>Document Name</label>
+                <select name="search_doc_name_by_type" id="search_doc_name_by_type" class="form-control select2">
+                    <option value="">All Documents</option>
+                    @foreach ($docNameByType as $item)
+                        <option value="{{ $item->name }}">{{ $item->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+
+
+            {{-- Document Type --}}
+            <div class="col-md-2 col-12">
+                <label>Document Type</label>
+                <select name="search_factory_document_type" id="search_factory_document_type" class="form-control select2">
+                    <option value="">All Types</option>
+                    @foreach ($docTypes as $type)
+                        <option value="{{ $type }}">{{ str_replace('_', ' ', ucwords(strtolower($type))) }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+
+
+            {{-- Buttons --}}
+            <div class="col-md-4 col-12 text-right">
+                <button type="button" class="btn btn-primary" id="submitBtn">
+                    <i class="fa-solid fa-magnifying-glass"></i> Search
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrows-rotate"></i> Clear
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
